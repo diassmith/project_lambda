@@ -1,0 +1,10 @@
+{
+	"name": "lk_akv_lambda",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://akv-lambda.vault.azure.net/"
+		}
+	}
+}
