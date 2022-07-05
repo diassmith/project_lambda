@@ -104,6 +104,9 @@
 				"          Geography_Germany,",
 				"          Gender_Female,",
 				"          Gender_Male",
+				"     ),",
+				"     partitionBy('dynamicRange', 2,",
+				"          IsActiveMember",
 				"     )) ~> sink1"
 			]
 		}
