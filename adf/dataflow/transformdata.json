@@ -1,0 +1,63 @@
+{
+	"name": "transformdata",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          RowNumber as integer,",
+				"          CustomerId as integer,",
+				"          Surname as string,",
+				"          CreditScore as integer,",
+				"          Geography as string,",
+				"          Gender as string,",
+				"          Age as integer,",
+				"          Tenure as string,",
+				"          Balance as decimal(10,0),",
+				"          NumOfProducts as integer,",
+				"          HasCrCard as integer,",
+				"          IsActiveMember as integer,",
+				"          EstimatedSalary as string,",
+				"          Exited as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Geography,",
+				"          PK",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
