@@ -16,14 +16,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dim_geography",
-						"type": "DataFlowReference",
-						"datasetParameters": {
-							"sink1": {
-								"Directory": "Dim/Geography",
-								"filneName": "geography"
-							}
-						}
+						"referenceName": "transformdata_silver",
+						"type": "DataFlowReference"
 					},
 					"compute": {
 						"coreCount": 8,
