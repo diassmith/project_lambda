@@ -1,5 +1,5 @@
 {
-	"name": "transformdata",
+	"name": "transformdata_silver",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -53,8 +53,20 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
+				"          RowNumber,",
+				"          CustomerId,",
+				"          Surname,",
+				"          CreditScore,",
 				"          Geography,",
-				"          PK",
+				"          Gender,",
+				"          Age,",
+				"          Tenure,",
+				"          Balance,",
+				"          NumOfProducts,",
+				"          HasCrCard,",
+				"          IsActiveMember,",
+				"          EstimatedSalary,",
+				"          Exited",
 				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
