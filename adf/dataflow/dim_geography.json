@@ -1,0 +1,89 @@
+{
+	"name": "dim_geography",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "select2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          RowNumber as integer,",
+				"          CustomerId as integer,",
+				"          Surname as string,",
+				"          CreditScore as integer,",
+				"          Geography as string,",
+				"          Gender as string,",
+				"          Age as integer,",
+				"          Tenure as string,",
+				"          Balance as decimal(10,0),",
+				"          NumOfProducts as integer,",
+				"          HasCrCard as integer,",
+				"          IsActiveMember as integer,",
+				"          EstimatedSalary as string,",
+				"          Exited as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> source1",
+				"source1 select(mapColumn(",
+				"          RowNumber,",
+				"          Geography",
+				"     ),",
+				"     partitionBy('hash', 1),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> select1",
+				"select1 aggregate(groupBy(Geography),",
+				"     RowNumber = sum(RowNumber),",
+				"     partitionBy('hash', 1)) ~> aggregate1",
+				"select2 keyGenerate(output(PK as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"aggregate1 select(mapColumn(",
+				"          Geography",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
