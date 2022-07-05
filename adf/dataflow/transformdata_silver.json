@@ -67,8 +67,7 @@
 				"          IsActiveMember,",
 				"          EstimatedSalary,",
 				"          Exited",
-				"     ),",
-				"     partitionBy('hash', 1)) ~> sink1"
+				"     )) ~> sink1"
 			]
 		}
 	}
