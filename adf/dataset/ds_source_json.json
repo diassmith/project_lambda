@@ -19,7 +19,7 @@
 					"value": "@dataset().fileName",
 					"type": "Expression"
 				},
-				"fileSystem": "Inbound"
+				"fileSystem": "inbound"
 			}
 		},
 		"schema": {}
