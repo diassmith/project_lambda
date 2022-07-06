@@ -185,7 +185,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "json",
+							"name": "Copy data2",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -224,7 +224,10 @@
 									"referenceName": "ds_source_json",
 									"type": "DatasetReference",
 									"parameters": {
-										"fileName": "item().name"
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
 									}
 								}
 							],
