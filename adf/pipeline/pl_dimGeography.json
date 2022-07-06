@@ -19,6 +19,12 @@
 						"referenceName": "dim_geography",
 						"type": "DataFlowReference",
 						"datasetParameters": {
+							"Churn": {
+								"fileName": "Churn.parquet"
+							},
+							"source2": {
+								"fileName": "Country.parquet"
+							},
 							"sink1": {
 								"Directory": "Dim/geo"
 							}
