@@ -112,7 +112,13 @@
 							"outputs": [
 								{
 									"referenceName": "ds_bronze",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
@@ -234,7 +240,13 @@
 							"outputs": [
 								{
 									"referenceName": "ds_bronze",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"fileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
