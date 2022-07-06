@@ -115,7 +115,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"fileName": {
-											"value": "@item().name",
+											"value": "@replace(item().name,'.csv','.parquet')",
 											"type": "Expression"
 										}
 									}
@@ -243,7 +243,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"fileName": {
-											"value": "@item().name",
+											"value": "@replace(item().name,'.json','.parquet')",
 											"type": "Expression"
 										}
 									}
