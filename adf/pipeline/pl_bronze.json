@@ -52,6 +52,7 @@
 						"value": "@activity('Filter1').output.value",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
 							"name": "Copy data1",
@@ -181,6 +182,7 @@
 						"value": "@activity('Filter2').output.value",
 						"type": "Expression"
 					},
+					"isSequential": true,
 					"activities": [
 						{
 							"name": "json",
