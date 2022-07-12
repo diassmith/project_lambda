@@ -23,6 +23,63 @@
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "RowNumber",
+				"type": "UTF8"
+			},
+			{
+				"name": "CustomerId",
+				"type": "UTF8"
+			},
+			{
+				"name": "Surname",
+				"type": "UTF8"
+			},
+			{
+				"name": "CreditScore",
+				"type": "UTF8"
+			},
+			{
+				"name": "Geography",
+				"type": "UTF8"
+			},
+			{
+				"name": "Gender",
+				"type": "UTF8"
+			},
+			{
+				"name": "Age",
+				"type": "UTF8"
+			},
+			{
+				"name": "Tenure",
+				"type": "UTF8"
+			},
+			{
+				"name": "Balance",
+				"type": "UTF8"
+			},
+			{
+				"name": "NumOfProducts",
+				"type": "UTF8"
+			},
+			{
+				"name": "HasCrCard",
+				"type": "UTF8"
+			},
+			{
+				"name": "IsActiveMember",
+				"type": "UTF8"
+			},
+			{
+				"name": "EstimatedSalary",
+				"type": "UTF8"
+			},
+			{
+				"name": "Exited",
+				"type": "UTF8"
+			}
+		]
 	}
 }
