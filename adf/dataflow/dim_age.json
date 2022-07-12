@@ -1,0 +1,97 @@
+{
+	"name": "dim_age",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "surrogateKey1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          RowNumber as string,",
+				"          CustomerId as string,",
+				"          Surname as string,",
+				"          CreditScore as string,",
+				"          Geography as string,",
+				"          Gender as string,",
+				"          Age as integer,",
+				"          Tenure as string,",
+				"          Balance as string,",
+				"          NumOfProducts as string,",
+				"          HasCrCard as string,",
+				"          IsActiveMember as string,",
+				"          EstimatedSalary as string,",
+				"          Exited as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source1",
+				"source1 select(mapColumn(",
+				"          RowNumber,",
+				"          Age",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn1 aggregate(groupBy(Age,",
+				"          Age_Group),",
+				"     RowNumber = max(RowNumber)) ~> aggregate1",
+				"select1 derive(Age_Group = iif(Age >= 18 && Age <= 23, \"18-23\", iif(Age >= 24 && Age <= 30, \"24-30\", iif(Age >= 31 && Age <= 35, \"31-35\", iif(Age >= 36 && Age <= 40,\"36-40\", iif(Age >= 41 && Age <= 45, \"41-45\", iif(Age >= 46 && Age <= 50, \"46-50\", iif(Age > 50, \">50\", \"\")))))))) ~> derivedColumn1",
+				"aggregate1 select(mapColumn(",
+				"          Age,",
+				"          Age_Group",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 keyGenerate(output(PK as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          Age,",
+				"          Age_Group,",
+				"          PK",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
