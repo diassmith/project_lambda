@@ -9,7 +9,14 @@
 						"referenceName": "ds_bronze",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "Churn"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
 				}
 			],
 			"sinks": [
@@ -23,9 +30,6 @@
 			],
 			"transformations": [
 				{
-					"name": "select1"
-				},
-				{
 					"name": "aggregate1"
 				},
 				{
@@ -33,41 +37,62 @@
 				},
 				{
 					"name": "select2"
+				},
+				{
+					"name": "select6"
+				},
+				{
+					"name": "aggregate2"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select7"
+				},
+				{
+					"name": "derivedColumn2"
 				}
 			],
 			"scriptLines": [
 				"source(output(",
-				"          RowNumber as integer,",
-				"          CustomerId as integer,",
+				"          RowNumber as string,",
+				"          CustomerId as string,",
 				"          Surname as string,",
-				"          CreditScore as integer,",
+				"          CreditScore as string,",
 				"          Geography as string,",
 				"          Gender as string,",
-				"          Age as integer,",
+				"          Age as string,",
 				"          Tenure as string,",
-				"          Balance as decimal(10,0),",
-				"          NumOfProducts as integer,",
-				"          HasCrCard as integer,",
-				"          IsActiveMember as integer,",
+				"          Balance as string,",
+				"          NumOfProducts as string,",
+				"          HasCrCard as string,",
+				"          IsActiveMember as string,",
 				"          EstimatedSalary as string,",
-				"          Exited as integer",
+				"          Exited as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source1",
-				"source1 select(mapColumn(",
-				"          RowNumber,",
-				"          Geography",
+				"     partitionBy('hash', 1)) ~> Churn",
+				"source(output(",
+				"          iso_code as string,",
+				"          country as string,",
+				"          current_population as string,",
+				"          updated_datetime as string",
 				"     ),",
-				"     partitionBy('hash', 1),",
-				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> select1",
-				"select1 aggregate(groupBy(Geography),",
-				"     RowNumber = sum(RowNumber),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source2",
+				"select6 aggregate(groupBy(Geography),",
+				"     RowNumber = max(RowNumber),",
 				"     partitionBy('hash', 1)) ~> aggregate1",
-				"select2 keyGenerate(output(PK as long),",
+				"derivedColumn2 keyGenerate(output(PK as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"aggregate1 select(mapColumn(",
@@ -75,6 +100,31 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
+				"Churn select(mapColumn(",
+				"          RowNumber,",
+				"          Geography",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select6",
+				"derivedColumn1 aggregate(groupBy(country,",
+				"          iso_code),",
+				"     updated_datetime = max(updated_datetime),",
+				"          current_population = max(current_population)) ~> aggregate2",
+				"source2 derive(current_population = toDecimal(current_population,15,0,'0,0')) ~> derivedColumn1",
+				"select2, select7 join(Geography == country,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"aggregate2 select(mapColumn(",
+				"          country,",
+				"          iso_code,",
+				"          current_population",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select7",
+				"join1 derive(continent = iif(country == \"France\" || country == \"Germany\" || country == \"Spain\"  , \"Europe\",\"\"),",
+				"          {alpha-code-continent} = iif(country == \"France\" || country == \"Germany\" || country == \"Spain\"  , \"Eur\",\"\")) ~> derivedColumn2",
 				"surrogateKey1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -84,7 +134,11 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
-				"          Geography,",
+				"          Country = Geography,",
+				"          IsoCode = iso_code,",
+				"          Population = current_population,",
+				"          Continent = continent,",
+				"          IsoContinent = {alpha-code-continent},",
 				"          PK",
 				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"

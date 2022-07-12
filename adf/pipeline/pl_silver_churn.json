@@ -1,5 +1,5 @@
 {
-	"name": "pl_dimGeography",
+	"name": "pl_silver_churn",
 	"properties": {
 		"activities": [
 			{
@@ -16,17 +16,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dim_geography",
+						"referenceName": "transformdata_silver",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"Churn": {
-								"fileName": "Churn.parquet"
-							},
-							"source2": {
-								"fileName": "Country.parquet"
-							},
 							"sink1": {
-								"Directory": "Dim/geo"
+								"Directory": "Churn"
 							}
 						}
 					},

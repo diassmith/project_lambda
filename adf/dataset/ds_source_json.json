@@ -1,28 +1,27 @@
 {
-	"name": "ds_silver",
+	"name": "ds_source_json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "lk_adls",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"Directory": {
+			"fileName": {
 				"type": "string"
 			}
 		},
 		"annotations": [],
-		"type": "Parquet",
+		"type": "Json",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": {
-					"value": "@dataset().Directory",
+				"fileName": {
+					"value": "@dataset().fileName",
 					"type": "Expression"
 				},
-				"fileSystem": "silver"
-			},
-			"compressionCodec": "snappy"
+				"fileSystem": "inbound"
+			}
 		},
-		"schema": []
+		"schema": {}
 	}
 }
