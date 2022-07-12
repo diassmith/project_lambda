@@ -25,7 +25,7 @@
 						"referenceName": "pl_gender",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": false
 				}
 			},
 			{
@@ -38,7 +38,7 @@
 						"referenceName": "pl_age",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": false
 				}
 			},
 			{
@@ -51,7 +51,7 @@
 						"referenceName": "pl_tenure",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": false
 				}
 			}
 		],
