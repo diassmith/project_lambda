@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
-								"fileName": "Churn.csv"
+								"fileName": "Churn.parquet"
 							},
 							"sink1": {
 								"Directory": "Churn"

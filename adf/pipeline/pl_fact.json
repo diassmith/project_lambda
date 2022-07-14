@@ -1,0 +1,21 @@
+{
+	"name": "pl_fact",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_fact_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
