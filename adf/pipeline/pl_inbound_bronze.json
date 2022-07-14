@@ -1,5 +1,5 @@
 {
-	"name": "pl_bronze",
+	"name": "pl_inbound_bronze",
 	"properties": {
 		"activities": [
 			{
@@ -254,6 +254,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "bronze"
+		},
 		"annotations": []
 	}
 }

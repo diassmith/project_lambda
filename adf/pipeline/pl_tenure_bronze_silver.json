@@ -1,5 +1,5 @@
 {
-	"name": "pl_tenure",
+	"name": "pl_tenure_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -35,6 +35,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "silver/Dim"
+		},
 		"annotations": []
 	}
 }

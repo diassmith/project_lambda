@@ -1,5 +1,5 @@
 {
-	"name": "pl_age",
+	"name": "pl_age_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -35,6 +35,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "silver/Fact"
+		},
 		"annotations": []
 	}
 }

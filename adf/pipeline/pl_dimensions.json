@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_dimGeography",
+						"referenceName": "pl_Geography_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -29,7 +29,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_gender",
+						"referenceName": "pl_gender_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -49,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_age",
+						"referenceName": "pl_age_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -69,7 +69,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_tenure",
+						"referenceName": "pl_tenure_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false

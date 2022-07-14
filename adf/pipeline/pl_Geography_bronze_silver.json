@@ -1,5 +1,5 @@
 {
-	"name": "pl_dimGeography",
+	"name": "pl_Geography_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -38,6 +38,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "silver/Dim"
+		},
 		"annotations": []
 	}
 }
