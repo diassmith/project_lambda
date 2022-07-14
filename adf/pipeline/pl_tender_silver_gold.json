@@ -47,7 +47,110 @@
 					"items": {
 						"value": "@activity('Get Metadata1').output.childItems",
 						"type": "Expression"
-					}
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "Tenure",
+												"type": "Int32",
+												"physicalType": "INT32"
+											},
+											"sink": {
+												"name": "Tenure",
+												"type": "Int32",
+												"physicalType": "INT_32"
+											}
+										},
+										{
+											"source": {
+												"name": "Tenure_Group",
+												"type": "String",
+												"physicalType": "UTF8"
+											},
+											"sink": {
+												"name": "Tenure_Group",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "PK",
+												"type": "Int64",
+												"physicalType": "INT64"
+											},
+											"sink": {
+												"name": "PK",
+												"type": "Int64",
+												"physicalType": "INT_64"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_silver",
+									"type": "DatasetReference",
+									"parameters": {
+										"Directory": "Dim/tenure"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_gold",
+									"type": "DatasetReference",
+									"parameters": {
+										"Directory": "Dim/tenure",
+										"FileName": {
+											"value": "@item().value",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],
