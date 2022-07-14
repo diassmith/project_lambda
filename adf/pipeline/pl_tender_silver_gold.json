@@ -68,7 +68,7 @@
 										"type": "AzureBlobFSReadSettings",
 										"recursive": true,
 										"wildcardFolderPath": "Dim/tenure",
-										"wildcardFileName": "*.snappy.parquet",
+										"wildcardFileName": ".snappy.parquet",
 										"enablePartitionDiscovery": false
 									}
 								},
