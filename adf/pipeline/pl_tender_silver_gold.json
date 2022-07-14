@@ -67,6 +67,8 @@
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
 										"recursive": true,
+										"wildcardFolderPath": "Dim/tenure",
+										"wildcardFileName": "*.snappy.parquet",
 										"enablePartitionDiscovery": false
 									}
 								},
@@ -155,7 +157,7 @@
 			}
 		],
 		"folder": {
-			"name": "Gold/Dim"
+			"name": "Gold"
 		},
 		"annotations": []
 	}
