@@ -19,6 +19,9 @@
 						"referenceName": "transformdata_silver",
 						"type": "DataFlowReference",
 						"datasetParameters": {
+							"source1": {
+								"fileName": "Churn.csv"
+							},
 							"sink1": {
 								"Directory": "Churn"
 							}
