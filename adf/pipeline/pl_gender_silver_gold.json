@@ -1,5 +1,5 @@
 {
-	"name": "pl_age_silver_gold",
+	"name": "pl_gender_silver_gold",
 	"properties": {
 		"activities": [
 			{
@@ -19,7 +19,7 @@
 						"referenceName": "ds_silver",
 						"type": "DatasetReference",
 						"parameters": {
-							"Directory": "Dim/age"
+							"Directory": "Dim/gender"
 						}
 					},
 					"fieldList": [
@@ -67,7 +67,7 @@
 									"storeSettings": {
 										"type": "AzureBlobFSReadSettings",
 										"recursive": true,
-										"wildcardFolderPath": "Dim/age",
+										"wildcardFolderPath": "Dim/gender",
 										"wildcardFileName": "*.snappy.parquet",
 										"enablePartitionDiscovery": false
 									}
@@ -87,24 +87,12 @@
 									"mappings": [
 										{
 											"source": {
-												"name": "Age",
-												"type": "Int32",
-												"physicalType": "INT32"
-											},
-											"sink": {
-												"name": "Age",
-												"type": "Int32",
-												"physicalType": "INT_32"
-											}
-										},
-										{
-											"source": {
-												"name": "Age_Group",
+												"name": "Gender",
 												"type": "String",
 												"physicalType": "UTF8"
 											},
 											"sink": {
-												"name": "Age_Group",
+												"name": "Gender",
 												"type": "String",
 												"physicalType": "UTF8"
 											}
@@ -134,7 +122,7 @@
 									"referenceName": "ds_silver",
 									"type": "DatasetReference",
 									"parameters": {
-										"Directory": "Dim/age"
+										"Directory": "Dim/gender"
 									}
 								}
 							],
@@ -143,7 +131,7 @@
 									"referenceName": "ds_gold",
 									"type": "DatasetReference",
 									"parameters": {
-										"Directory": "Dim/age",
+										"Directory": "Dim/gender",
 										"FileName": {
 											"value": "@item().name",
 											"type": "Expression"
