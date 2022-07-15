@@ -1,5 +1,5 @@
 {
-	"name": "SQL script 1",
+	"name": "Creating DIM_Age",
 	"properties": {
 		"content": {
 			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'gold_adlslambda_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [gold_adlslambda_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://gold@adlslambda.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE [Dim].[Age] (\n\t[Age] int,\n\t[AgeGroup] nvarchar(4000),\n\t[AgeID] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Dim/age/**',\n\tDATA_SOURCE = [gold_adlslambda_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM [Dim].[Age]\nGO",
