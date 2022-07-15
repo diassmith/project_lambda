@@ -1,0 +1,56 @@
+{
+	"name": "pl_churn_fact",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "fact_gold",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"Directory": "Fato"
+							},
+							"Geo": {
+								"Directory": "Dim/geo"
+							},
+							"Age": {
+								"Directory": "Dim/age"
+							},
+							"Gender": {
+								"Directory": "Dim/gender"
+							},
+							"Tenure": {
+								"Directory": "Dim/tenure"
+							},
+							"sink1": {
+								"Directory": "Fato",
+								"FileName": "FactChurn.parquet"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Gold/Fact"
+		},
+		"annotations": []
+	}
+}

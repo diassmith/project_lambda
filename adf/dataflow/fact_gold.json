@@ -1,0 +1,201 @@
+{
+	"name": "fact_gold",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "Geo"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "Age"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "Gender"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "Tenure"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_gold",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "joinGeo"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "joinAge"
+				},
+				{
+					"name": "joinGender"
+				},
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          RowNumber as integer,",
+				"          CustomerId as string,",
+				"          Surname as string,",
+				"          Credit_Score as string,",
+				"          Geography as string,",
+				"          Gender as string,",
+				"          Age as string,",
+				"          Tenure as integer,",
+				"          Balance as double,",
+				"          Num_Of_Products as integer,",
+				"          Has_Crredit_Card as integer,",
+				"          Active_Member as integer,",
+				"          Estimated_Salary as string,",
+				"          Exited as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> source1",
+				"source(output(",
+				"          Country as string,",
+				"          IsoCode as string,",
+				"          Population as decimal(15,0),",
+				"          Continent as string,",
+				"          IsoContinent as string,",
+				"          PK as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Geo",
+				"source(output(",
+				"          Age as string,",
+				"          Age_Group as string,",
+				"          PK as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Age",
+				"source(output(",
+				"          Gender as string,",
+				"          PK as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Gender",
+				"source(output(",
+				"          Tenure as integer,",
+				"          Tenure_Group as string,",
+				"          PK as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Tenure",
+				"source1 select(mapColumn(",
+				"          RowNumber,",
+				"          {Customer Id} = CustomerId,",
+				"          Surname,",
+				"          {Credit Score} = Credit_Score,",
+				"          Geography,",
+				"          Gender,",
+				"          Age,",
+				"          Tenure,",
+				"          Balance,",
+				"          {Num Of Products} = Num_Of_Products,",
+				"          {Has Credit Card} = Has_Crredit_Card,",
+				"          {Active Member} = Active_Member,",
+				"          {Estimated Salary} = Estimated_Salary,",
+				"          Exited",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1, Geo join(Geography == Country,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinGeo",
+				"join1 select(mapColumn(",
+				"          RowNumber,",
+				"          {Customer Id},",
+				"          Surname,",
+				"          {Credit Score},",
+				"          Country = Geography,",
+				"          Gender = select1@Gender,",
+				"          Age = select1@Age,",
+				"          Tenure = select1@Tenure,",
+				"          Balance,",
+				"          {Num Of Products},",
+				"          {Has Credit Card},",
+				"          {Active Member},",
+				"          {Estimated Salary},",
+				"          Exited,",
+				"          sk_geo = Geo@PK,",
+				"          sk_age = Age@PK,",
+				"          sk_gender = Gender@PK",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"joinGeo, Age join(select1@Age == Age@Age,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinAge",
+				"joinAge, Gender join(select1@Gender == Gender@Gender,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinGender",
+				"joinGender, Tenure join(select1@Tenure == Tenure@Tenure,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"select2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}
