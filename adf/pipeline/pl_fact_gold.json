@@ -1,5 +1,5 @@
 {
-	"name": "pl_churn_fact",
+	"name": "pl_fact_gold",
 	"properties": {
 		"activities": [
 			{
