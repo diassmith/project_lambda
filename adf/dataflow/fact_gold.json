@@ -113,7 +113,7 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> Geo",
 				"source(output(",
-				"          Age as string,",
+				"          Age as integer,",
 				"          Age_Group as string,",
 				"          PK as integer",
 				"     ),",
