@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "sy-project-lambda"
+		},
+		"sy-project-lambda-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"sy-project-lambda-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://adlslambda.dfs.core.windows.net"
+		}
+	}
+}
