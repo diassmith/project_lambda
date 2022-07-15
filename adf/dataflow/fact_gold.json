@@ -240,7 +240,8 @@
 				"          sk_geo,",
 				"          sk_age,",
 				"          sk_gender,",
-				"          sk_surname",
+				"          sk_surname,",
+				"          sk_tenure",
 				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
