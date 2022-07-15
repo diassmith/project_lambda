@@ -82,7 +82,7 @@
 			"scriptLines": [
 				"source(output(",
 				"          RowNumber as integer,",
-				"          CustomerId as string,",
+				"          CustomerId as integer,",
 				"          Surname as string,",
 				"          Credit_Score as string,",
 				"          Geography as string,",
