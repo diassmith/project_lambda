@@ -75,7 +75,8 @@
 								"sink": {
 									"type": "ParquetSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
 									},
 									"formatSettings": {
 										"type": "ParquetWriteSettings"
@@ -104,8 +105,7 @@
 												"physicalType": "UTF8"
 											},
 											"sink": {
-												"name": "Age_Group",
-												"type": "String",
+												"name": "Age Group",
 												"physicalType": "UTF8"
 											}
 										},
@@ -116,8 +116,7 @@
 												"physicalType": "INT64"
 											},
 											"sink": {
-												"name": "PK",
-												"type": "Int64",
+												"name": "Age ID",
 												"physicalType": "INT_64"
 											}
 										}
