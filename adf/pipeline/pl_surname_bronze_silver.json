@@ -1,0 +1,43 @@
+{
+	"name": "pl_surname_bronze_silver",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dim_surname",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"Bronze": {
+								"fileName": "Churn.parquet"
+							},
+							"sink1": {
+								"Directory": "Dim/surname"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Silver/Dim"
+		},
+		"annotations": []
+	}
+}
