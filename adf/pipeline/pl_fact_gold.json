@@ -34,6 +34,9 @@
 							"Tenure": {
 								"Directory": "Dim/tenure"
 							},
+							"Surname": {
+								"Directory": "Dim/surname"
+							},
 							"sink1": {
 								"Directory": "Fato",
 								"FileName": "FactChurn.parquet"
