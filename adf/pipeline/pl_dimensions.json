@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_dimGeography",
+						"referenceName": "pl_Geography_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -20,7 +20,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Geo",
+						"activity": "Wait1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -29,7 +29,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_gender",
+						"referenceName": "pl_gender_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -40,7 +40,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Gender",
+						"activity": "Wait1_copy1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -49,7 +49,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_age",
+						"referenceName": "pl_age_bronze_silver",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false
@@ -60,7 +60,7 @@
 				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
-						"activity": "Age",
+						"activity": "Wait1_copy1_copy1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -69,7 +69,271 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_tenure",
+						"referenceName": "pl_tenure_bronze_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Geo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Wait1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Gender",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Wait1_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Age",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Wait1_copy1_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Tenure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Surname",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait1_copy1_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_surname_bronze_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Geo_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait1_copy1_copy1_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_geo_silver_gold",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Wait1_copy1_copy1_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Surname",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 10
+				}
+			},
+			{
+				"name": "Wait2",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Geo_gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "gender_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_gender_silver_gold",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Age_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait2_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_age_silver_gold",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Ternure_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait2_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_tenure_silver_gold",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			},
+			{
+				"name": "Wait2_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "gender_gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Wait2_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Age_gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Wait2_copy1_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Ternure_gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Surname_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait2_copy1_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_surname_silver_gold",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": false

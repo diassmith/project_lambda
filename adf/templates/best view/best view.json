@@ -1,0 +1,2161 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"lk_adls": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_dimensions')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Geo",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_Geography_bronze_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Gender",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_gender_bronze_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Age",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_age_bronze_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Tenure",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_tenure_bronze_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Geo",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Gender",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Age",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait1_copy1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Tenure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Surname",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait1_copy1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_surname_bronze_silver",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Geo_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait1_copy1_copy1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_geo_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Wait1_copy1_copy1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Surname",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait2",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Geo_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "gender_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_gender_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Age_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_age_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Ternure_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_tenure_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					},
+					{
+						"name": "Wait2_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "gender_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Age_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Ternure_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "Surname_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_surname_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_Geography_bronze_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_gender_bronze_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_age_bronze_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_tenure_bronze_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_surname_bronze_silver')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_geo_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_gender_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_age_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_tenure_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_surname_silver_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_Geography_bronze_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dim_geography",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"Churn": {
+										"fileName": "Churn.parquet"
+									},
+									"source2": {
+										"fileName": "Country.parquet"
+									},
+									"sink1": {
+										"Directory": "Dim/geo"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "Silver/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dim_geography')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_gender_bronze_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dim_gender",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"source1": {
+										"fileName": "Churn.parquet"
+									},
+									"sink1": {
+										"Directory": "Dim/gender"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "Silver/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dim_gender')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_age_bronze_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dim_age",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"source1": {
+										"fileName": "Churn.parquet"
+									},
+									"sink1": {
+										"Directory": "Dim/age"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "Silver/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dim_age')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_tenure_bronze_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dim_tenure",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"source1": {
+										"fileName": "Churn.parquet"
+									},
+									"sink1": {
+										"Directory": "Dim/tenure"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "Silver/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dim_tenure')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_surname_bronze_silver')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dim_surname",
+								"type": "DataFlowReference",
+								"datasetParameters": {
+									"Bronze": {
+										"fileName": "Churn.parquet"
+									},
+									"sink1": {
+										"Directory": "Dim/surname"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "Silver/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dim_surname')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_geo_silver_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": "Dim/geo"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "Dim/geo",
+												"wildcardFileName": "*.snappy.parquet",
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "Country",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "Country",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "IsoCode",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "IsoCode",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "Population",
+														"type": "Decimal",
+														"physicalType": "DECIMAL",
+														"scale": 0,
+														"precision": 15
+													},
+													"sink": {
+														"name": "Population",
+														"type": "Decimal",
+														"physicalType": "DECIMAL"
+													}
+												},
+												{
+													"source": {
+														"name": "Continent",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "Continent",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "IsoContinent",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "IsoContinent",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT64"
+													},
+													"sink": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT_64"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_silver",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/geo"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_gold",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/geo",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"folder": {
+					"name": "Gold/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_gender_silver_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": "Dim/gender"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "Dim/gender",
+												"wildcardFileName": "*.snappy.parquet",
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "Gender",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "Gender",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT64"
+													},
+													"sink": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT_64"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_silver",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/gender"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_gold",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/gender",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"folder": {
+					"name": "Gold/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_age_silver_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": "Dim/age"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "Dim/age",
+												"wildcardFileName": "*.snappy.parquet",
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings",
+												"copyBehavior": "MergeFiles"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "Age",
+														"type": "Int32",
+														"physicalType": "INT32"
+													},
+													"sink": {
+														"name": "Age",
+														"type": "Int32",
+														"physicalType": "INT_32"
+													}
+												},
+												{
+													"source": {
+														"name": "Age_Group",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "Age Group",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT64"
+													},
+													"sink": {
+														"name": "Age ID",
+														"physicalType": "INT_64"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_silver",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/age"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_gold",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/age",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"folder": {
+					"name": "Gold/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_tenure_silver_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": "Dim/tenure"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "Tenure",
+														"type": "Int32",
+														"physicalType": "INT32"
+													},
+													"sink": {
+														"name": "Tenure",
+														"type": "Int32",
+														"physicalType": "INT_32"
+													}
+												},
+												{
+													"source": {
+														"name": "Tenure_Group",
+														"type": "String",
+														"physicalType": "UTF8"
+													},
+													"sink": {
+														"name": "Tenure_Group",
+														"type": "String",
+														"physicalType": "UTF8"
+													}
+												},
+												{
+													"source": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT64"
+													},
+													"sink": {
+														"name": "PK",
+														"type": "Int64",
+														"physicalType": "INT_64"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_silver",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/tenure"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_gold",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/tenure",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"folder": {
+					"name": "Gold/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_surname_silver_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference",
+								"parameters": {
+									"Directory": "Dim/surname"
+								}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ParquetSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "Dim/surname",
+												"wildcardFileName": "*.snappy.parquet",
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings",
+												"copyBehavior": "MergeFiles"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_silver",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/surname"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_gold",
+											"type": "DatasetReference",
+											"parameters": {
+												"Directory": "Dim/surname",
+												"FileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"folder": {
+					"name": "Gold/Dim"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dim_geography')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "Churn"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "select6"
+						},
+						{
+							"name": "aggregate2"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select7"
+						},
+						{
+							"name": "derivedColumn2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowNumber as string,",
+						"          CustomerId as string,",
+						"          Surname as string,",
+						"          CreditScore as string,",
+						"          Geography as string,",
+						"          Gender as string,",
+						"          Age as string,",
+						"          Tenure as string,",
+						"          Balance as string,",
+						"          NumOfProducts as string,",
+						"          HasCrCard as string,",
+						"          IsActiveMember as string,",
+						"          EstimatedSalary as string,",
+						"          Exited as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet',",
+						"     partitionBy('hash', 1)) ~> Churn",
+						"source(output(",
+						"          iso_code as string,",
+						"          country as string,",
+						"          current_population as string,",
+						"          updated_datetime as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source2",
+						"select6 aggregate(groupBy(Geography),",
+						"     RowNumber = max(RowNumber),",
+						"     partitionBy('hash', 1)) ~> aggregate1",
+						"derivedColumn2 keyGenerate(output(PK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"aggregate1 select(mapColumn(",
+						"          Geography",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"Churn select(mapColumn(",
+						"          RowNumber,",
+						"          Geography",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select6",
+						"derivedColumn1 aggregate(groupBy(country,",
+						"          iso_code),",
+						"     updated_datetime = max(updated_datetime),",
+						"          current_population = max(current_population)) ~> aggregate2",
+						"source2 derive(current_population = toDecimal(current_population,15,0,'0,0')) ~> derivedColumn1",
+						"select2, select7 join(Geography == country,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"aggregate2 select(mapColumn(",
+						"          country,",
+						"          iso_code,",
+						"          current_population",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select7",
+						"join1 derive(continent = iif(country == \"France\" || country == \"Germany\" || country == \"Spain\"  , \"Europe\",\"\"),",
+						"          {alpha-code-continent} = iif(country == \"France\" || country == \"Germany\" || country == \"Spain\"  , \"Eur\",\"\")) ~> derivedColumn2",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          Country = Geography,",
+						"          IsoCode = iso_code,",
+						"          Population = current_population,",
+						"          Continent = continent,",
+						"          IsoContinent = {alpha-code-continent},",
+						"          PK",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dim_gender')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "select2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowNumber as string,",
+						"          CustomerId as string,",
+						"          Surname as string,",
+						"          CreditScore as string,",
+						"          Geography as string,",
+						"          Gender as string,",
+						"          Age as string,",
+						"          Tenure as string,",
+						"          Balance as string,",
+						"          NumOfProducts as string,",
+						"          HasCrCard as string,",
+						"          IsActiveMember as string,",
+						"          EstimatedSalary as string,",
+						"          Exited as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 select(mapColumn(",
+						"          RowNumber,",
+						"          Gender",
+						"     ),",
+						"     partitionBy('hash', 1),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 aggregate(groupBy(Gender),",
+						"     RowNumber = min(RowNumber)) ~> aggregate1",
+						"aggregate1 keyGenerate(output(PK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 select(mapColumn(",
+						"          Gender,",
+						"          PK",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dim_age')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "surrogateKey1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowNumber as string,",
+						"          CustomerId as string,",
+						"          Surname as string,",
+						"          CreditScore as string,",
+						"          Geography as string,",
+						"          Gender as string,",
+						"          Age as integer,",
+						"          Tenure as string,",
+						"          Balance as string,",
+						"          NumOfProducts as string,",
+						"          HasCrCard as string,",
+						"          IsActiveMember as string,",
+						"          EstimatedSalary as string,",
+						"          Exited as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 select(mapColumn(",
+						"          RowNumber,",
+						"          Age",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn1 aggregate(groupBy(Age,",
+						"          Age_Group),",
+						"     RowNumber = max(RowNumber)) ~> aggregate1",
+						"select1 derive(Age_Group = iif(Age >= 18 && Age <= 23, \"18-23\", iif(Age >= 24 && Age <= 30, \"24-30\", iif(Age >= 31 && Age <= 35, \"31-35\", iif(Age >= 36 && Age <= 40,\"36-40\", iif(Age >= 41 && Age <= 45, \"41-45\", iif(Age >= 46 && Age <= 50, \"46-50\", iif(Age >= 50  && Age <=55, \"50-55\", iif(Age > 55, \">55\", \"\"))))))))) ~> derivedColumn1",
+						"aggregate1 select(mapColumn(",
+						"          Age,",
+						"          Age_Group",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select2 keyGenerate(output(PK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          Age,",
+						"          Age_Group,",
+						"          PK",
+						"     ),",
+						"     partitionBy('dynamicRange', 2,",
+						"          Age_Group",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dim_tenure')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "surrogateKey1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowNumber as string,",
+						"          CustomerId as string,",
+						"          Surname as string,",
+						"          CreditScore as string,",
+						"          Geography as string,",
+						"          Gender as string,",
+						"          Age as integer,",
+						"          Tenure as integer,",
+						"          Balance as string,",
+						"          NumOfProducts as string,",
+						"          HasCrCard as string,",
+						"          IsActiveMember as string,",
+						"          EstimatedSalary as string,",
+						"          Exited as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> source1",
+						"source1 select(mapColumn(",
+						"          RowNumber,",
+						"          Tenure",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn1 aggregate(groupBy(Tenure,",
+						"          Tenure_Group),",
+						"     RowNumber = max(RowNumber)) ~> aggregate1",
+						"select1 derive(Tenure_Group = iif(Tenure >= 0 && Tenure <= 3, \"0-3\", iif(Tenure >= 4 && Tenure <= 7, \"4-7\", iif(Tenure >= 8 && Tenure <= 11, \"8-11\",\"\")))) ~> derivedColumn1",
+						"aggregate1 select(mapColumn(",
+						"          Tenure,",
+						"          Tenure_Group",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select2 keyGenerate(output(PK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          Tenure,",
+						"          Tenure_Group,",
+						"          PK",
+						"     ),",
+						"     partitionBy('dynamicRange', 3,",
+						"          Tenure_Group",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dim_surname')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze",
+								"type": "DatasetReference"
+							},
+							"name": "Bronze"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "surrogateKey1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          RowNumber as string,",
+						"          CustomerId as string,",
+						"          Surname as string,",
+						"          CreditScore as integer,",
+						"          Geography as string,",
+						"          Gender as string,",
+						"          Age as string,",
+						"          Tenure as string,",
+						"          Balance as string,",
+						"          NumOfProducts as string,",
+						"          HasCrCard as string,",
+						"          IsActiveMember as string,",
+						"          EstimatedSalary as integer,",
+						"          Exited as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> Bronze",
+						"Bronze select(mapColumn(",
+						"          Surname,",
+						"          CreditScore,",
+						"          EstimatedSalary",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 aggregate(groupBy(Surname),",
+						"     CreditScore = sum(CreditScore),",
+						"          EstimatedSalary = sum(EstimatedSalary)) ~> aggregate1",
+						"aggregate1 keyGenerate(output(PK as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_silver')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('lk_adls')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Directory": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"fileSystem": "silver"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_bronze')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('lk_adls')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"fileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().fileName",
+							"type": "Expression"
+						},
+						"fileSystem": "bronze"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "RowNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "CustomerId",
+						"type": "UTF8"
+					},
+					{
+						"name": "Surname",
+						"type": "UTF8"
+					},
+					{
+						"name": "CreditScore",
+						"type": "UTF8"
+					},
+					{
+						"name": "Geography",
+						"type": "UTF8"
+					},
+					{
+						"name": "Gender",
+						"type": "UTF8"
+					},
+					{
+						"name": "Age",
+						"type": "UTF8"
+					},
+					{
+						"name": "Tenure",
+						"type": "UTF8"
+					},
+					{
+						"name": "Balance",
+						"type": "UTF8"
+					},
+					{
+						"name": "NumOfProducts",
+						"type": "UTF8"
+					},
+					{
+						"name": "HasCrCard",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsActiveMember",
+						"type": "UTF8"
+					},
+					{
+						"name": "EstimatedSalary",
+						"type": "UTF8"
+					},
+					{
+						"name": "Exited",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_gold')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('lk_adls')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Directory": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"fileSystem": "gold"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		}
+	]
+}

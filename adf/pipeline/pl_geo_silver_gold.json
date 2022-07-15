@@ -1,0 +1,202 @@
+{
+	"name": "pl_geo_silver_gold",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference",
+						"parameters": {
+							"Directory": "Dim/geo"
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata1').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"wildcardFolderPath": "Dim/geo",
+										"wildcardFileName": "*.snappy.parquet",
+										"enablePartitionDiscovery": false
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"mappings": [
+										{
+											"source": {
+												"name": "Country",
+												"type": "String",
+												"physicalType": "UTF8"
+											},
+											"sink": {
+												"name": "Country",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "IsoCode",
+												"type": "String",
+												"physicalType": "UTF8"
+											},
+											"sink": {
+												"name": "IsoCode",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "Population",
+												"type": "Decimal",
+												"physicalType": "DECIMAL",
+												"scale": 0,
+												"precision": 15
+											},
+											"sink": {
+												"name": "Population",
+												"type": "Decimal",
+												"physicalType": "DECIMAL"
+											}
+										},
+										{
+											"source": {
+												"name": "Continent",
+												"type": "String",
+												"physicalType": "UTF8"
+											},
+											"sink": {
+												"name": "Continent",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "IsoContinent",
+												"type": "String",
+												"physicalType": "UTF8"
+											},
+											"sink": {
+												"name": "IsoContinent",
+												"type": "String",
+												"physicalType": "UTF8"
+											}
+										},
+										{
+											"source": {
+												"name": "PK",
+												"type": "Int64",
+												"physicalType": "INT64"
+											},
+											"sink": {
+												"name": "PK",
+												"type": "Int64",
+												"physicalType": "INT_64"
+											}
+										}
+									],
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_silver",
+									"type": "DatasetReference",
+									"parameters": {
+										"Directory": "Dim/geo"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_gold",
+									"type": "DatasetReference",
+									"parameters": {
+										"Directory": "Dim/geo",
+										"FileName": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"folder": {
+			"name": "Gold/Dim"
+		},
+		"annotations": []
+	}
+}

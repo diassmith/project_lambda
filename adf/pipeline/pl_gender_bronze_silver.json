@@ -1,5 +1,5 @@
 {
-	"name": "pl_gender",
+	"name": "pl_gender_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -35,6 +35,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Silver/Dim"
+		},
 		"annotations": []
 	}
 }

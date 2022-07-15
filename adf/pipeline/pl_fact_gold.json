@@ -1,5 +1,5 @@
 {
-	"name": "pl_age",
+	"name": "pl_fact_gold",
 	"properties": {
 		"activities": [
 			{
@@ -16,14 +16,30 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dim_age",
+						"referenceName": "fact_gold",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"source1": {
-								"fileName": "Churn.parquet"
+								"Directory": "Fato"
+							},
+							"Geo": {
+								"Directory": "Dim/geo"
+							},
+							"Age": {
+								"Directory": "Dim/age"
+							},
+							"Gender": {
+								"Directory": "Dim/gender"
+							},
+							"Tenure": {
+								"Directory": "Dim/tenure"
+							},
+							"Surname": {
+								"Directory": "Dim/surname"
 							},
 							"sink1": {
-								"Directory": "Dim/age"
+								"Directory": "Fato",
+								"FileName": "FactChurn.parquet"
 							}
 						}
 					},
@@ -35,6 +51,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Gold/Fact"
+		},
 		"annotations": []
 	}
 }

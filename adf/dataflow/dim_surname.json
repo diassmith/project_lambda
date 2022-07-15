@@ -1,5 +1,5 @@
 {
-	"name": "dim_geography_copy1",
+	"name": "dim_surname",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -9,7 +9,7 @@
 						"referenceName": "ds_bronze",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "Bronze"
 				}
 			],
 			"sinks": [
@@ -30,9 +30,6 @@
 				},
 				{
 					"name": "surrogateKey1"
-				},
-				{
-					"name": "select2"
 				}
 			],
 			"scriptLines": [
@@ -40,7 +37,7 @@
 				"          RowNumber as string,",
 				"          CustomerId as string,",
 				"          Surname as string,",
-				"          CreditScore as string,",
+				"          CreditScore as integer,",
 				"          Geography as string,",
 				"          Gender as string,",
 				"          Age as string,",
@@ -49,32 +46,26 @@
 				"          NumOfProducts as string,",
 				"          HasCrCard as string,",
 				"          IsActiveMember as string,",
-				"          EstimatedSalary as string,",
+				"          EstimatedSalary as integer,",
 				"          Exited as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source1",
-				"source1 select(mapColumn(",
-				"          RowNumber,",
-				"          Gender",
-				"     ),",
-				"     partitionBy('hash', 1),",
-				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> select1",
-				"select1 aggregate(groupBy(Geography),",
-				"     RowNumber = sum(RowNumber),",
-				"     partitionBy('hash', 1)) ~> aggregate1",
-				"select2 keyGenerate(output(PK as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"aggregate1 select(mapColumn(",
-				"          Geography",
+				"     format: 'parquet') ~> Bronze",
+				"Bronze select(mapColumn(",
+				"          Surname,",
+				"          CreditScore,",
+				"          EstimatedSalary",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select2",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy(Surname),",
+				"     CreditScore = sum(CreditScore),",
+				"          EstimatedSalary = sum(EstimatedSalary)) ~> aggregate1",
+				"aggregate1 keyGenerate(output(PK as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -83,10 +74,6 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          Geography,",
-				"          PK",
-				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}

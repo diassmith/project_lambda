@@ -1,5 +1,5 @@
 {
-	"name": "pl_silver_churn",
+	"name": "pl_surname_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -16,14 +16,14 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "transformdata_silver",
+						"referenceName": "dim_surname",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"source1": {
+							"Bronze": {
 								"fileName": "Churn.parquet"
 							},
 							"sink1": {
-								"Directory": "Churn"
+								"Directory": "Dim/surname"
 							}
 						}
 					},
@@ -36,7 +36,7 @@
 			}
 		],
 		"folder": {
-			"name": "Silver"
+			"name": "Silver/Dim"
 		},
 		"annotations": []
 	}

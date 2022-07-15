@@ -1,5 +1,5 @@
 {
-	"name": "pl_tenure",
+	"name": "pl_Geography_bronze_silver",
 	"properties": {
 		"activities": [
 			{
@@ -16,14 +16,17 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dim_tenure",
+						"referenceName": "dim_geography",
 						"type": "DataFlowReference",
 						"datasetParameters": {
-							"source1": {
+							"Churn": {
 								"fileName": "Churn.parquet"
 							},
+							"source2": {
+								"fileName": "Country.parquet"
+							},
 							"sink1": {
-								"Directory": "Dim/tenure"
+								"Directory": "Dim/geo"
 							}
 						}
 					},
@@ -35,6 +38,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Silver/Dim"
+		},
 		"annotations": []
 	}
 }
