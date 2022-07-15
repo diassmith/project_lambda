@@ -1,0 +1,17 @@
+{
+	"name": "Creating Dim_Geo",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'gold_adlslambda_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [gold_adlslambda_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://gold@adlslambda.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE [Dim].[Geo] (\n\t[Country] nvarchar(50),\n\t[IsoCode] nvarchar(3),\n\t[Population] numeric(15,0),\n\t[Continent] nvarchar(10),\n\t[IsoContinent] nvarchar(3),\n\t[PK] int\n\t)\n\tWITH (\n\tLOCATION = 'Dim/geo/**',\n\tDATA_SOURCE = [gold_adlslambda_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM [Dim].[Geo]\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "lambdaProject",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
