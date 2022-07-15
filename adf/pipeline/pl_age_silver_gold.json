@@ -105,7 +105,7 @@
 												"physicalType": "UTF8"
 											},
 											"sink": {
-												"name": "Age Group",
+												"name": "AgeGroup",
 												"physicalType": "UTF8"
 											}
 										},
@@ -116,7 +116,7 @@
 												"physicalType": "INT64"
 											},
 											"sink": {
-												"name": "Age ID",
+												"name": "AgeID",
 												"physicalType": "INT_64"
 											}
 										}
