@@ -211,8 +211,7 @@
 										"sink": {
 											"type": "ParquetSink",
 											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings",
-												"copyBehavior": "MergeFiles"
+												"type": "AzureBlobFSWriteSettings"
 											},
 											"formatSettings": {
 												"type": "ParquetWriteSettings"
@@ -241,7 +240,7 @@
 														"physicalType": "UTF8"
 													},
 													"sink": {
-														"name": "Age Group",
+														"name": "AgeGroup",
 														"physicalType": "UTF8"
 													}
 												},
@@ -252,7 +251,7 @@
 														"physicalType": "INT64"
 													},
 													"sink": {
-														"name": "Age ID",
+														"name": "AgeID",
 														"physicalType": "INT_64"
 													}
 												}
@@ -306,7 +305,190 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_dimensions')]",
+			"name": "[concat(parameters('factoryName'), '/pl_dim_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Geo_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_geo_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Wait2",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Geo_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "gender_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_gender_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Age_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_age_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Ternure_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_tenure_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Wait2_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Ternure_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Age_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Surname_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Surname_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_surname_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_geo_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_gender_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_age_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_tenure_silver_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_surname_silver_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_dim_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -474,27 +656,6 @@
 						}
 					},
 					{
-						"name": "Geo_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait1_copy1_copy1_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_geo_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
 						"name": "Wait1_copy1_copy1_copy1_copy1",
 						"type": "Wait",
 						"dependsOn": [
@@ -509,154 +670,6 @@
 						"typeProperties": {
 							"waitTimeInSeconds": 10
 						}
-					},
-					{
-						"name": "Wait2",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Geo_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "gender_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_gender_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Age_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_age_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Ternure_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_tenure_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Wait2_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "gender_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Wait2_copy1_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Age_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Wait2_copy1_copy1_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Ternure_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Surname_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_surname_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
 					}
 				],
 				"policy": {
@@ -670,12 +683,7 @@
 				"[concat(variables('factoryId'), '/pipelines/pl_gender_bronze_silver')]",
 				"[concat(variables('factoryId'), '/pipelines/pl_age_bronze_silver')]",
 				"[concat(variables('factoryId'), '/pipelines/pl_tenure_bronze_silver')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_surname_bronze_silver')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_geo_silver_gold')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_gender_silver_gold')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_age_silver_gold')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_tenure_silver_gold')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_surname_silver_gold')]"
+				"[concat(variables('factoryId'), '/pipelines/pl_surname_bronze_silver')]"
 			]
 		},
 		{
@@ -732,7 +740,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 3
+							"waitTimeInSeconds": 5
 						}
 					}
 				],
@@ -3198,18 +3206,18 @@
 					"scriptLines": [
 						"source(output(",
 						"          RowNumber as integer,",
-						"          CustomerId as string,",
+						"          CustomerId as integer,",
 						"          Surname as string,",
-						"          Credit_Score as string,",
+						"          Credit_Score as integer,",
 						"          Geography as string,",
 						"          Gender as string,",
-						"          Age as string,",
+						"          Age as integer,",
 						"          Tenure as integer,",
 						"          Balance as double,",
 						"          Num_Of_Products as integer,",
 						"          Has_Crredit_Card as integer,",
 						"          Active_Member as integer,",
-						"          Estimated_Salary as string,",
+						"          Estimated_Salary as double,",
 						"          Exited as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
@@ -3229,7 +3237,7 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> Geo",
 						"source(output(",
-						"          Age as string,",
+						"          Age as integer,",
 						"          Age_Group as string,",
 						"          PK as integer",
 						"     ),",

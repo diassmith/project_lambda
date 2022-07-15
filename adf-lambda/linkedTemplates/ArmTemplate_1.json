@@ -237,6 +237,183 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_dim_gold')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Geo_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_geo_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Wait2",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Geo_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "gender_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_gender_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Age_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_age_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Ternure_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2_copy1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_tenure_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "Wait2_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Ternure_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Age_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Wait2_copy1_copy1_copy1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Surname_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 5
+						}
+					},
+					{
+						"name": "Surname_gold",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Wait2",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_surname_silver_gold",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_fact_gold')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -515,7 +692,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_dimensions')]",
+			"name": "[concat(parameters('factoryName'), '/pl_dim_silver')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -683,27 +860,6 @@
 						}
 					},
 					{
-						"name": "Geo_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait1_copy1_copy1_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_geo_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
 						"name": "Wait1_copy1_copy1_copy1_copy1",
 						"type": "Wait",
 						"dependsOn": [
@@ -717,154 +873,6 @@
 						"userProperties": [],
 						"typeProperties": {
 							"waitTimeInSeconds": 10
-						}
-					},
-					{
-						"name": "Wait2",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Geo_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "gender_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_gender_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Age_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_age_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Ternure_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_tenure_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
-						}
-					},
-					{
-						"name": "Wait2_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "gender_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Wait2_copy1_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Age_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Wait2_copy1_copy1_copy1",
-						"type": "Wait",
-						"dependsOn": [
-							{
-								"activity": "Ternure_gold",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 3
-						}
-					},
-					{
-						"name": "Surname_gold",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Wait2_copy1_copy1_copy1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_surname_silver_gold",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {}
 						}
 					}
 				],
@@ -936,7 +944,7 @@
 						],
 						"userProperties": [],
 						"typeProperties": {
-							"waitTimeInSeconds": 3
+							"waitTimeInSeconds": 5
 						}
 					}
 				],

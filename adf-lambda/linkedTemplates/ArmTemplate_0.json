@@ -424,8 +424,7 @@
 										"sink": {
 											"type": "ParquetSink",
 											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings",
-												"copyBehavior": "MergeFiles"
+												"type": "AzureBlobFSWriteSettings"
 											},
 											"formatSettings": {
 												"type": "ParquetWriteSettings"
@@ -454,7 +453,7 @@
 														"physicalType": "UTF8"
 													},
 													"sink": {
-														"name": "Age Group",
+														"name": "AgeGroup",
 														"physicalType": "UTF8"
 													}
 												},
@@ -465,7 +464,7 @@
 														"physicalType": "INT64"
 													},
 													"sink": {
-														"name": "Age ID",
+														"name": "AgeID",
 														"physicalType": "INT_64"
 													}
 												}
@@ -2359,18 +2358,18 @@
 					"scriptLines": [
 						"source(output(",
 						"          RowNumber as integer,",
-						"          CustomerId as string,",
+						"          CustomerId as integer,",
 						"          Surname as string,",
-						"          Credit_Score as string,",
+						"          Credit_Score as integer,",
 						"          Geography as string,",
 						"          Gender as string,",
-						"          Age as string,",
+						"          Age as integer,",
 						"          Tenure as integer,",
 						"          Balance as double,",
 						"          Num_Of_Products as integer,",
 						"          Has_Crredit_Card as integer,",
 						"          Active_Member as integer,",
-						"          Estimated_Salary as string,",
+						"          Estimated_Salary as double,",
 						"          Exited as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
@@ -2390,7 +2389,7 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet') ~> Geo",
 						"source(output(",
-						"          Age as string,",
+						"          Age as integer,",
 						"          Age_Group as string,",
 						"          PK as integer",
 						"     ),",
