@@ -122,6 +122,42 @@
 				"typeProperties": {
 					"waitTimeInSeconds": 3
 				}
+			},
+			{
+				"name": "Wait1_copy1_copy1_copy1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "Tenure",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Wait1_copy1_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_surname_bronze_silver",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
 			}
 		],
 		"annotations": []
