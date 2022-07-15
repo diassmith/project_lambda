@@ -38,6 +38,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Tenure"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "Surname"
 				}
 			],
 			"sinks": [
@@ -66,7 +73,10 @@
 					"name": "joinGender"
 				},
 				{
-					"name": "join1"
+					"name": "joinTunure"
+				},
+				{
+					"name": "joinSurname"
 				}
 			],
 			"scriptLines": [
@@ -128,6 +138,17 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> Tenure",
+				"source(output(",
+				"          Surname as string,",
+				"          CreditScore as long,",
+				"          EstimatedSalary as long,",
+				"          PK as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> Surname",
 				"source1 select(mapColumn(",
 				"          RowNumber,",
 				"          {Customer Id} = CustomerId,",
@@ -151,24 +172,25 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinGeo",
-				"join1 select(mapColumn(",
+				"joinSurname select(mapColumn(",
 				"          RowNumber,",
-				"          {Customer Id},",
-				"          Surname,",
-				"          {Credit Score},",
+				"          CustomerId = {Customer Id},",
+				"          Surname = select1@Surname,",
+				"          CreditScore = {Credit Score},",
 				"          Country = Geography,",
 				"          Gender = select1@Gender,",
 				"          Age = select1@Age,",
 				"          Tenure = select1@Tenure,",
 				"          Balance,",
-				"          {Num Of Products},",
-				"          {Has Credit Card},",
-				"          {Active Member},",
-				"          {Estimated Salary},",
+				"          NumOfProducts = {Num Of Products},",
+				"          HasCreditCard = {Has Credit Card},",
+				"          ActiveMember = {Active Member},",
+				"          EstimatedSalary = {Estimated Salary},",
 				"          Exited,",
 				"          sk_geo = Geo@PK,",
 				"          sk_age = Age@PK,",
-				"          sk_gender = Gender@PK",
+				"          sk_gender = Gender@PK,",
+				"          sk_surname = Surname@PK",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select2",
@@ -186,7 +208,12 @@
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1",
+				"     broadcast: 'auto')~> joinTunure",
+				"joinTunure, Surname join(select1@Surname == Surname@Surname,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinSurname",
 				"select2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
@@ -195,6 +222,25 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          CustomerId,",
+				"          Surname,",
+				"          CreditScore,",
+				"          Country,",
+				"          Gender,",
+				"          Age,",
+				"          Tenure,",
+				"          Balance,",
+				"          NumOfProducts,",
+				"          HasCreditCard,",
+				"          ActiveMember,",
+				"          EstimatedSalary,",
+				"          Exited,",
+				"          sk_geo,",
+				"          sk_age,",
+				"          sk_gender,",
+				"          sk_surname",
+				"     ),",
 				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
