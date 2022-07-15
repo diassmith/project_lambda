@@ -1,0 +1,75 @@
+{
+	"name": "dim_surname",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze",
+						"type": "DatasetReference"
+					},
+					"name": "Bronze"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          RowNumber as string,",
+				"          CustomerId as string,",
+				"          Surname as string,",
+				"          CreditScore as integer,",
+				"          Geography as string,",
+				"          Gender as string,",
+				"          Age as string,",
+				"          Tenure as string,",
+				"          Balance as string,",
+				"          NumOfProducts as string,",
+				"          HasCrCard as string,",
+				"          IsActiveMember as string,",
+				"          EstimatedSalary as integer,",
+				"          Exited as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Bronze",
+				"Bronze select(mapColumn(",
+				"          Surname,",
+				"          CreditScore,",
+				"          EstimatedSalary",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy(Surname),",
+				"     CreditScore = sum(CreditScore),",
+				"          EstimatedSalary = sum(EstimatedSalary)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
