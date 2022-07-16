@@ -1,0 +1,17 @@
+{
+	"name": "Creating fact churn",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'gold_adlslambda_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [gold_adlslambda_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://gold@adlslambda.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE [Fact].[Churn] (\n\t[CustomerId] INT,\n\t[Surname] nvarchar(20),\n\t[CreditScore] INT,\n\t[Country] nvarchar(50),\n\t[Gender] nvarchar(10),\n\t[Age] INT,\n\t[Tenure] int,\n\t[Balance] float,\n\t[NumOfProducts] int,\n\t[HasCreditCard] int,\n\t[ActiveMember] int,\n\t[EstimatedSalary] float,\n\t[Exited] int,\n\t[sk_geo] int,\n\t[sk_age] int,\n\t[sk_gender] int,\n\t[sk_surname] int,\n\t[sk_tenure] int\n\t)\n\tWITH (\n\tLOCATION = 'Fato/**',\n\tDATA_SOURCE = [gold_adlslambda_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM [Fact].[Churn]\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "lambdaProject",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}
